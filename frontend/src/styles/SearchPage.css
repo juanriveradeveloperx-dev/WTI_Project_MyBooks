@@ -1,0 +1,136 @@
+.search-page {
+    width: 100%;
+    padding: 2rem;
+    min-height: 100vh;
+    box-sizing: border-box;
+    background-color: #050505;
+    color: white;
+}
+
+.search-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.search-title {
+    margin: 0 0 24px 0;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+.search-box-wrapper {
+    width: 100%;
+    max-width: 900px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 1rem;
+    color: white;
+    background-color: #151515;
+    border: 1px solid #3a3a3a;
+    border-radius: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input::placeholder {
+    color: #9a9a9a;
+}
+
+.search-input:focus {
+    border-color: #f5f5f5;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+}
+
+.results-section {
+    width: 100%;
+}
+
+.results-grid {
+    margin-left: 5rem;
+    margin-right: 5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 120px);
+    gap: 18px;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+    .search-page {
+        padding: 1.5rem;
+    }
+
+    .results-grid {
+        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+        gap: 16px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .search-page {
+        padding: 1rem;
+    }
+
+    .search-header {
+        margin-bottom: 24px;
+    }
+
+    .search-input {
+        padding: 14px 16px;
+        font-size: 0.95rem;
+    }
+
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 14px;
+    }
+}
+
+.preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.preview-modal {
+  max-height: 90vh;
+  overflow: auto;
+  background: #0f0f0f;
+  border: 1px solid #2f2f2f;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+}
+
+.preview-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.preview-title {
+  margin: 0 0 16px 0;
+  font-size: 1.2rem;
+  color: white;
+  text-align: center;
+}

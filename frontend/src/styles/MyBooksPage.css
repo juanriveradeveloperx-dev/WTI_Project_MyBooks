@@ -1,0 +1,19 @@
+.my-books-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
+  background-color: #050505;
+  color: white;
+}
+
+.books-section {
+  margin-bottom: 2.5rem;
+}
+
+.books-section-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+}
