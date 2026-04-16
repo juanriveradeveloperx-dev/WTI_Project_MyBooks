@@ -42,7 +42,7 @@ function MyBooksPage() {
     if (nextStatus === book.status) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/books/${book.id}/status`, {
+      const res = await fetch(`${API_BASE}/books/${book.id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +64,7 @@ function MyBooksPage() {
   };
   const handleDelete = async (bookId) => {
     try {
-      const res = await fetch(`http://localhost:8000/books/${bookId}`, {
+      const res = await fetch(`${API_BASE}/books/${bookId}`, {
         method: "DELETE",
       });
 

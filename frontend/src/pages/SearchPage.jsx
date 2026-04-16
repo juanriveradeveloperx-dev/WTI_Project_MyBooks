@@ -4,6 +4,7 @@ import BookPreview from "../components/PreviewCard";
 import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import { useSavedBooks } from "../context/SavedBooksContext";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 function SearchPage() {
   const [query, setQuery] = useState("");
@@ -35,7 +36,7 @@ function SearchPage() {
       setLoadingSearch(true);
       setSearchError(false);
 
-      fetch(`http://localhost:8000/books/search?query=${encodeURIComponent(query)}`)
+      fetch(`${API_BASE}/books/search?query=${encodeURIComponent(query)}`)
         .then(async (res) => {
           const data = await res.json();
 
@@ -86,7 +87,7 @@ function SearchPage() {
     };
 
     try {
-      const res = await fetch("http://localhost:8000/books/save", {
+      const res = await fetch(`${API_BASE}/books/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
 const SavedBooksContext = createContext(null);
 
@@ -13,7 +14,7 @@ export function SavedBooksProvider({ children }) {
     try {
       setLoadingSavedBooks(true);
 
-      const res = await fetch("http://localhost:8000/books/userbooks");
+      const res = await fetch(`${API_BASE}/books/userbooks`);
       const data = await res.json();
 
       if (!res.ok) {
@@ -34,7 +35,7 @@ export function SavedBooksProvider({ children }) {
     try {
       setLoadingSavedBooks(true);
 
-      const res = await fetch("http://localhost:8000/books/userbooks");
+      const res = await fetch(`${API_BASE}/books/userbooks`);
       const data = await res.json();
 
       if (!res.ok) {
