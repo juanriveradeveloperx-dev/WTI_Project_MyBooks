@@ -6,12 +6,14 @@ import { useUser } from "../context/UserContext";
 import { useSavedBooks } from "../context/SavedBooksContext";
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
+
 function SearchPage() {
   const [query, setQuery] = useState("");
   const [books, setBooks] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [searchError, setSearchError] = useState(false);
+  const [loadingActions, setLoadingActions] = useState({});
 
   const user = useUser();
   const {
@@ -19,6 +21,13 @@ function SearchPage() {
     refreshSavedBooks,
     isBookSaved,
   } = useSavedBooks();
+
+  const setLoading = (bookId, value) => {
+    setLoadingActions((prev) => ({
+      ...prev,
+      [bookId]: value,
+    }));
+  };
 
   useEffect(() => {
     loadSavedBooks();
@@ -69,6 +78,8 @@ function SearchPage() {
   };
 
   const handleSave = async (book) => {
+    setLoading(book.id, "saving");
+
     const payload = {
       user_id: user.id,
       google_volume_id: book.id,
@@ -98,7 +109,6 @@ function SearchPage() {
       const data = await res.json();
 
       if (!res.ok) {
-
         console.error("save failed", data);
         return;
       }
@@ -106,6 +116,8 @@ function SearchPage() {
       await refreshSavedBooks();
     } catch (error) {
       console.error("save error", error);
+    } finally {
+      setLoading(book.id, null);
     }
   };
 
@@ -124,6 +136,13 @@ function SearchPage() {
       </div>
 
       <section className="results-section">
+        {!query ? (
+        <h3 className="search-title">
+          Search for any book you would like to read
+        </h3>
+        ) :
+        <p></p>
+        }
         {searchError ? (
           <h2 className="search-error-title">
             Ups! We could not find any books :) Try again.
@@ -147,6 +166,7 @@ function SearchPage() {
                   onSave={() => handleSave(book)}
                   showPreview={true}
                   showSave={!isBookSaved(book.id)}
+                  loadingState={loadingActions[book.id]}
                 />
               ))
             )}
@@ -167,7 +187,6 @@ function SearchPage() {
             <h2 className="preview-title">{selectedBook.title}</h2>
 
             <BookPreview volumeId={selectedBook.id} />
-
           </div>
         </div>
       )}

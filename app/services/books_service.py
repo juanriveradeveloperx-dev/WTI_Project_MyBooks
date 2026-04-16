@@ -19,16 +19,27 @@ def search_books_service(query: str):
     raw_data = search_google_books(query)
 
     mapped_items = []
+    seen_ids = set()
+
     for item in raw_data.get("items", []):
+        google_id = item.get("id")
+
+        # (avoid pagination issues where same book returned twice) skip invalid or duplicated google books ids
+        if not google_id or google_id in seen_ids:
+            continue
+
+        seen_ids.add(google_id)
+
         volume_info = item.get("volumeInfo", {})
         image_links = volume_info.get("imageLinks", {})
 
         mapped_items.append({
-            "id": item.get("id"),
+            "id": google_id,
             "title": volume_info.get("title", "No title"),
             "authors": ", ".join(volume_info.get("authors", [])) if volume_info.get("authors") else "Unknown author",
             "thumbnail": image_links.get("thumbnail") or image_links.get("smallThumbnail"),
             "previewLink": volume_info.get("previewLink"),
+            "infoLink": volume_info.get("infoLink"),
             "description": volume_info.get("description"),
             "publisher": volume_info.get("publisher"),
             "publishedDate": volume_info.get("publishedDate"),
@@ -37,7 +48,6 @@ def search_books_service(query: str):
         })
 
     return {"items": mapped_items}
-
 
 def save_book_service(book):
     existing = get_book_by_user_and_volume_id(book.user_id, book.google_volume_id)

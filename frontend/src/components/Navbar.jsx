@@ -7,7 +7,7 @@ function Navbar() {
       <div className="navbar-content">
         
         <div className="navbar-left">
-          <span className="logo">📚 BookApp</span>
+          <span className="logo">📚 MyBookShelf</span>
         </div>
 
         <div className="navbar-center">
@@ -16,7 +16,7 @@ function Navbar() {
         </div>
 
         <div className="navbar-right">
-          {/* futuro: user / profile */}
+          User: Mock User
         </div>
 
       </div>

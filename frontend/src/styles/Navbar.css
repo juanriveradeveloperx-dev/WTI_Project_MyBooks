@@ -18,6 +18,11 @@
   font-weight: bold;
   font-size: 18px;
 }
+.navbar-right {
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+}
 
 .navbar-center {
   display: flex;

@@ -10,11 +10,14 @@ function BookCard({
   showSave = false,
   showDelete = false,
   showAdvanceStatus = false,
+  loadingState,
 }) {
   if (!book) return null;
 
+  const isLoading = !!loadingState;
+
   return (
-    <div className="book-card">
+    <div className={`book-card ${isLoading ? "loading" : ""}`}>
       <div className="book-card-image-wrapper">
         <img
           src={book.thumbnail || "https://via.placeholder.com/128x190?text=No+Cover"}
@@ -23,27 +26,50 @@ function BookCard({
         />
 
         <div className="book-card-overlay">
-          {showSave && (
-            <button className="card-action-btn save-btn" onClick={onSave}>
-              Save
+          {showSave ? (
+            <button
+              className="card-action-btn save-btn"
+              disabled={isLoading}
+              onClick={onSave}
+            >
+              {loadingState === "saving" ? "Saving..." : "Save"}
             </button>
-          )}
-
-          {showPreview && (
-            <button className="card-action-btn preview-btn" onClick={onPreview}>
-              Preview
+          ) : (
+            <button
+              className="card-action-btn saved-btn"
+              disabled
+            >
+              Saved
             </button>
           )}
 
           {showDelete && (
-            <button className="card-action-btn delete-btn" onClick={onDelete}>
-              Delete
+            <button
+              className="card-action-btn delete-btn"
+              disabled={isLoading}
+              onClick={onDelete}
+            >
+              {loadingState === "deleting" ? "Deleting..." : "Delete"}
             </button>
           )}
 
           {showAdvanceStatus && (
-            <button className="card-action-btn status-btn" onClick={onAdvanceStatus}>
-              Change Status
+            <button
+              className="card-action-btn status-btn"
+              disabled={isLoading}
+              onClick={onAdvanceStatus}
+            >
+              {loadingState === "updating" ? "Updating..." : "Next"}
+            </button>
+          )}
+
+          {showPreview && (
+            <button
+              className="card-action-btn preview-btn"
+              disabled={isLoading}
+              onClick={onPreview}
+            >
+              Preview
             </button>
           )}
         </div>
@@ -60,4 +86,5 @@ function BookCard({
     </div>
   );
 }
+
 export default BookCard;

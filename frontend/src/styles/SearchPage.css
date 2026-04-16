@@ -204,3 +204,8 @@
 .search-error-title {
     color: white;
 }
+.search-title {
+    font-size: 2rem;
+    margin-top: 4rem;
+    padding: 1rem;
+}

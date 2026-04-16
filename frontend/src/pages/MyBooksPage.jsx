@@ -3,6 +3,8 @@ import BookCard from "../components/BookCard";
 import "../styles/MyBooksPage.css";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import BookPreview from "../components/PreviewCard";
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 
 function MyBooksPage() {
   const {
@@ -13,12 +15,19 @@ function MyBooksPage() {
     updateSavedBookStatus
   } = useSavedBooks();
 
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [loadingActions, setLoadingActions] = useState({});
+
+  const setLoading = (bookId, value) => {
+    setLoadingActions((prev) => ({
+      ...prev,
+      [bookId]: value,
+    }));
+  };
+
   useEffect(() => {
     loadSavedBooks();
   }, []);
-
-
-  const [selectedBook, setSelectedBook] = useState(null);
 
   const handlePreview = (book) => {
     setSelectedBook(book);
@@ -28,18 +37,18 @@ function MyBooksPage() {
     setSelectedBook(null);
   };
 
-
   const getNextStatus = (currentStatus) => {
     if (currentStatus === "want_to_read") return "reading";
     if (currentStatus === "reading") return "finished";
     return currentStatus;
   };
 
-
   const handleAdvanceStatus = async (book) => {
     const nextStatus = getNextStatus(book.status);
 
     if (nextStatus === book.status) return;
+
+    setLoading(book.id, "updating");
 
     try {
       const res = await fetch(`${API_BASE}/books/${book.id}/status`, {
@@ -60,9 +69,14 @@ function MyBooksPage() {
       updateSavedBookStatus(book.id, nextStatus);
     } catch (error) {
       console.error("status update error", error);
+    } finally {
+      setLoading(book.id, null);
     }
   };
+
   const handleDelete = async (bookId) => {
+    setLoading(bookId, "deleting");
+
     try {
       const res = await fetch(`${API_BASE}/books/${bookId}`, {
         method: "DELETE",
@@ -78,8 +92,11 @@ function MyBooksPage() {
       removeSavedBook(bookId);
     } catch (error) {
       console.error("delete error", error);
+    } finally {
+      setLoading(bookId, null);
     }
   };
+
   const wantToReadBooks = savedBooks.filter((book) => book.status === "want_to_read");
   const readingBooks = savedBooks.filter((book) => book.status === "reading");
   const finishedBooks = savedBooks.filter((book) => book.status === "finished");
@@ -100,8 +117,8 @@ function MyBooksPage() {
             onDelete={() => handleDelete(book.id)}
             onPreview={() => handlePreview(book)}
             onAdvanceStatus={() => handleAdvanceStatus(book)}
+            loadingState={loadingActions[book.id]}
           />
-
         ))}
       </div>
     </section>
@@ -150,7 +167,6 @@ function MyBooksPage() {
             <h2 className="preview-title">{selectedBook.title}</h2>
 
             <BookPreview volumeId={selectedBook.google_volume_id} />
-
           </div>
         </div>
       )}
