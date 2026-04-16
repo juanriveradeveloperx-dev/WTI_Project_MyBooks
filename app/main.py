@@ -7,6 +7,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
         "http://wit-my-book-shelf.s3-website.us-east-2.amazonaws.com",
     ],
     allow_credentials=True,
