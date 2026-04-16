@@ -2,7 +2,7 @@ import requests
 import os
 
 GOOGLE_ENDPOINT = "https://www.googleapis.com/books/v1/volumes"
-KEY = os.getenv("GOOGLE_KEY")
+KEY = "AIzaSyAytMhb-j0abdcirWgsHR54JcJipnqTghY"
 
 def search_google_books(query: str):
     all_items = []
