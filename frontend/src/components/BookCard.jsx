@@ -5,9 +5,11 @@ function BookCard({
   onPreview,
   onSave,
   onDelete,
+  onAdvanceStatus,
   showPreview = false,
   showSave = false,
   showDelete = false,
+  showAdvanceStatus = false,
 }) {
   if (!book) return null;
 
@@ -38,6 +40,12 @@ function BookCard({
               Delete
             </button>
           )}
+
+          {showAdvanceStatus && (
+            <button className="card-action-btn status-btn" onClick={onAdvanceStatus}>
+              Change Status
+            </button>
+          )}
         </div>
       </div>
 
@@ -52,5 +60,4 @@ function BookCard({
     </div>
   );
 }
-
 export default BookCard;

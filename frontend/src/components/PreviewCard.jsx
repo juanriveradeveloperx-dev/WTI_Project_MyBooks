@@ -7,19 +7,18 @@ function BookPreview({ volumeId }) {
     if (!volumeId || !containerRef.current) return;
 
     const renderViewer = () => {
-      if (!window.GBS_insertEmbeddedViewer) {
+      if (!window.GBS_insertEmbeddedViewer || !containerRef.current) {
         console.error("Google preview library not loaded");
         return;
       }
 
       containerRef.current.innerHTML = "";
 
-      const placeholder = document.createElement("div");
-      containerRef.current.appendChild(placeholder);
-
       const previousWrite = document.write;
       document.write = (html) => {
-        placeholder.innerHTML += html;
+        if (containerRef.current) {
+          containerRef.current.innerHTML += html;
+        }
       };
 
       try {
@@ -31,19 +30,29 @@ function BookPreview({ volumeId }) {
       }
     };
 
-    const existingScript = document.querySelector(
-      'script[src="https://books.google.com/books/previewlib.js"]'
-    );
+    const scriptSrc = "https://books.google.com/books/previewlib.js";
+    let script = document.querySelector(`script[src="${scriptSrc}"]`);
 
-    if (!existingScript) {
-      const script = document.createElement("script");
-      script.src = "https://books.google.com/books/previewlib.js";
+    if (!script) {
+      script = document.createElement("script");
+      script.src = scriptSrc;
       script.async = true;
       script.onload = renderViewer;
+      script.onerror = () => {
+        console.error("Failed to load Google preview script");
+      };
       document.body.appendChild(script);
-    } else {
+    } else if (window.GBS_insertEmbeddedViewer) {
       renderViewer();
+    } else {
+      script.addEventListener("load", renderViewer, { once: true });
     }
+
+    return () => {
+      if (script) {
+        script.removeEventListener("load", renderViewer);
+      }
+    };
   }, [volumeId]);
 
   return <div ref={containerRef} />;

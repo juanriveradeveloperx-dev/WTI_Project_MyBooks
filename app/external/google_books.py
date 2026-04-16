@@ -17,15 +17,27 @@ def search_google_books(query: str):
             "startIndex": page * max_results
         }
 
-        response = requests.get(GOOGLE_ENDPOINT, params=params, timeout=10)
-        response.raise_for_status()
+        try:
+            response = requests.get(GOOGLE_ENDPOINT, params=params, timeout=10)
+            response.raise_for_status()
 
-        data = response.json()
-        items = data.get("items", [])
+            data = response.json()
+            items = data.get("items", [])
 
-        if not items:
+            if not items:
+                break
+
+            all_items.extend(items)
+
+        except requests.RequestException as e:
+            print(f"[GOOGLE SEARCH ERROR] page={page} error={e}")
+
+            # if first page fails, let caller know search failed
+            if page == 0:
+                raise
+
+            # if later page fails, keep partial results
             break
 
-        all_items.extend(items)
-
     return {"items": all_items}
+   

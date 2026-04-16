@@ -2,25 +2,58 @@ import "../styles/SearchPage.css";
 import BookCard from "../components/BookCard";
 import BookPreview from "../components/PreviewCard";
 import { useEffect, useState } from "react";
+import { useUser } from "../context/UserContext";
+import { useSavedBooks } from "../context/SavedBooksContext";
 
 function SearchPage() {
   const [query, setQuery] = useState("");
   const [books, setBooks] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [searchError, setSearchError] = useState(false);
+
+  const user = useUser();
+  const {
+    loadSavedBooks,
+    refreshSavedBooks,
+    isBookSaved,
+  } = useSavedBooks();
+
+  useEffect(() => {
+    loadSavedBooks();
+  }, []);
 
   useEffect(() => {
     if (query.trim().length < 4) {
       setBooks([]);
+      setSearchError(false);
+      setLoadingSearch(false);
       return;
     }
 
     const timeoutId = setTimeout(() => {
+      setLoadingSearch(true);
+      setSearchError(false);
+
       fetch(`http://localhost:8000/books/search?query=${encodeURIComponent(query)}`)
-        .then((res) => res.json())
+        .then(async (res) => {
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.detail || "Search failed");
+          }
+
+          return data;
+        })
         .then((data) => {
           setBooks(data.items || []);
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          console.error(err);
+          setBooks([]);
+          setSearchError(true);
+        })
+        .finally(() => setLoadingSearch(false));
     }, 500);
 
     return () => clearTimeout(timeoutId);
@@ -36,13 +69,14 @@ function SearchPage() {
 
   const handleSave = async (book) => {
     const payload = {
-      user_id: 1,
+      user_id: user.id,
       google_volume_id: book.id,
       title: book.title,
       authors: book.authors || null,
       description: book.description || null,
       thumbnail: book.thumbnail || null,
       preview_link: book.previewLink || null,
+      info_link: book.infoLink || null,
       publisher: book.publisher || null,
       published_date: book.publishedDate || null,
       page_count: book.pageCount || null,
@@ -63,11 +97,12 @@ function SearchPage() {
       const data = await res.json();
 
       if (!res.ok) {
+
         console.error("save failed", data);
         return;
       }
 
-      console.log("saved book", data);
+      await refreshSavedBooks();
     } catch (error) {
       console.error("save error", error);
     }
@@ -88,19 +123,34 @@ function SearchPage() {
       </div>
 
       <section className="results-section">
-        <div className="results-grid">
-          {books.map((book) => (
-
-            <BookCard
-              key={book.id}
-              book={book}
-              showPreview={true}
-              showSave={true}
-              onPreview={() => handlePreview(book)}
-              onSave={() => handleSave(book)}
-            />
-          ))}
-        </div>
+        {searchError ? (
+          <h2 className="search-error-title">
+            Ups! We could not find any books :) Try again.
+          </h2>
+        ) : (
+          <div className="results-grid">
+            {loadingSearch ? (
+              [1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+                <div key={item} className="book-skeleton-card">
+                  <div className="book-skeleton-image"></div>
+                  <div className="book-skeleton-line title"></div>
+                  <div className="book-skeleton-line author"></div>
+                </div>
+              ))
+            ) : (
+              books.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  onPreview={() => handlePreview(book)}
+                  onSave={() => handleSave(book)}
+                  showPreview={true}
+                  showSave={!isBookSaved(book.id)}
+                />
+              ))
+            )}
+          </div>
+        )}
       </section>
 
       {selectedBook && (
@@ -116,6 +166,7 @@ function SearchPage() {
             <h2 className="preview-title">{selectedBook.title}</h2>
 
             <BookPreview volumeId={selectedBook.id} />
+
           </div>
         </div>
       )}

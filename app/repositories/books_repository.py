@@ -55,6 +55,18 @@ def get_books_by_user(user_id):
             cur.execute(query, (user_id,))
             return cur.fetchall()
 
+def get_book_by_id_and_user(book_id, user_id):
+    query = """
+    SELECT *
+    FROM saved_books
+    WHERE id = %s AND user_id = %s;
+    """
+
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(query, (book_id, user_id))
+            return cur.fetchone()
+
 def get_book_by_user_and_volume_id(user_id, google_volume_id):
 
     query = """
@@ -68,7 +80,9 @@ def get_book_by_user_and_volume_id(user_id, google_volume_id):
             cur.execute(query, (user_id, google_volume_id))
             return cur.fetchone()
         
+
 def delete_book(book_id, user_id):
+    print(book_id, user_id)
     query = """
     DELETE FROM saved_books
     WHERE id = %s AND user_id = %s

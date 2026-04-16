@@ -3,6 +3,7 @@ from app.repositories.books_repository import (
     save_book,
     get_books_by_user,
     get_book_by_user_and_volume_id,
+    get_book_by_id_and_user,
     update_book_status,
     delete_book
 )
@@ -79,16 +80,16 @@ def update_book_status_service(book_id: int,user_id: int, status: str):
     if status not in VALID_STATUSES:
         raise ValueError("Invalid status")
 
-    existing = get_book_by_user_and_volume_id(book_id, user_id, status)
+    existing = get_book_by_id_and_user(book_id, user_id)
     if not existing:
         raise ValueError("Book not found")
 
-    return update_book_status(book_id, status)
+    return update_book_status(book_id, user_id, status)
 
 
 def delete_book_service(book_id: int, user_id: int):
-    existing = get_book_by_user_and_volume_id(book_id, user_id)
+    existing = get_book_by_id_and_user(book_id, user_id)
     if not existing:
-        raise ValueError("Book not found")
+        raise ValueError("Book not duplicated")
 
-    return delete_book(book_id)
+    return delete_book(book_id, user_id)

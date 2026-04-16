@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.schemas import BookCreate, BookStatusUpdate
+import requests
 from app.services.books_service import (
     save_book_service,
     get_user_books_service,
@@ -7,7 +8,7 @@ from app.services.books_service import (
     update_book_status_service,
     delete_book_service
 )
-from WTI_Project_MyBooks.app.dependencies.auth import get_current_user_id 
+from app.dependencies.auth import get_current_user_id 
 
 router = APIRouter(prefix="/books", tags=["books"])
 
@@ -16,6 +17,8 @@ router = APIRouter(prefix="/books", tags=["books"])
 async def get_all_google_books_route(query: str):
     try:
         return search_books_service(query)
+    except requests.RequestException:
+        raise HTTPException(status_code=502, detail="External books service failed")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -58,11 +61,9 @@ async def update_book_status_route(
     
 
 @router.delete("/{book_id}")
-async def delete_book_route(
-    book_id: int,
-    user_id: int = Depends(get_current_user_id)
-):
+async def delete_book_route(book_id: int):
     try:
+        user_id = get_current_user_id()
         result = delete_book_service(book_id, user_id)
         return {"message": "Book deleted", "data": result}
     except ValueError as e:

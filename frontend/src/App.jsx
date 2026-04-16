@@ -8,10 +8,12 @@ import MyBooksPage from './pages/MyBooksPage'
 import Navbar from './components/Navbar'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SavedBooksProvider } from "./context/SavedBooksContext";
+import { UserProvider } from "./context/UserContext";
 
 
 function App() {
   return (
+    <UserProvider>
     <SavedBooksProvider>
     <BrowserRouter>
       <div className="app-container">
@@ -26,6 +28,7 @@ function App() {
       </div>
     </BrowserRouter>
     </SavedBooksProvider>
+    </UserProvider>
   );
 }
 

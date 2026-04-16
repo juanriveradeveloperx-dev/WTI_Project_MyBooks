@@ -134,3 +134,69 @@
   color: white;
   text-align: center;
 }
+
+
+.book-skeleton-card {
+  background-color: #111111;
+  border: 1px solid #232323;
+  border-radius: 16px;
+  overflow: hidden;
+  padding-bottom: 10px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.book-skeleton-image {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: linear-gradient(
+    90deg,
+    #151515 25%,
+    #222222 50%,
+    #151515 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.book-skeleton-line {
+  height: 10px;
+  border-radius: 6px;
+  margin: 10px 10px 0 10px;
+  background: linear-gradient(
+    90deg,
+    #151515 25%,
+    #222222 50%,
+    #151515 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.book-skeleton-line.title {
+  width: 75%;
+}
+
+.book-skeleton-line.author {
+  width: 55%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.95;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.95;
+  }
+}
