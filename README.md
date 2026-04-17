@@ -2,7 +2,7 @@
 
 MyBookShelf is a small full-stack N-tier application built for the World Travel, Inc. technical interview. The app lets a user search books from Google Books, save books into PostgreSQL, organize them by reading status, preview books, and remove them from the shelf. The frontend is built with React + React Context, and the backend is built with FastAPI using raw SQL only.
 
-This project addresses the interview requirements for CRUD, state management, external API integration, PostgreSQL persistence, and an AWS deployment approach aligned to the AWS Well-Architected Framework. fileciteturn4file0
+This project addresses the interview requirements for CRUD, state management, external API integration, PostgreSQL persistence, and an AWS deployment approach aligned to the AWS Well-Architected Framework. 
 
 ## Architecture
 
@@ -54,6 +54,9 @@ app/
     books.py
   services/
     books_service.py
+  testing/
+    test_books_service.py
+    test_books_routes.py
 frontend/
   src/
     components/
@@ -62,10 +65,6 @@ frontend/
     styles/
     App.jsx
     main.jsx
-tests/
-  backend/
-    test_books_service.py
-    test_books_routes.py
 ```
 
 ## Backend Setup
@@ -217,7 +216,8 @@ pytest tests/backend/test_books_routes.py
 
 ### Run all tests
 ```bash
-pytest tests/backend
+python -m pytest . -v
+from the app folder
 ```
 
 ## Deployment Guidance (AWS)
@@ -225,9 +225,9 @@ pytest tests/backend
 A practical target deployment is:
 
 - Frontend: S3 static site hosting
-- Optional CDN: CloudFront
+- Optional: CloudFront
 - Backend: EC2 instance running FastAPI behind Nginx/systemd
-- Database: PostgreSQL (RDS preferred if time permits)
+- Database: PostgreSQL (RDS was used)
 - Secrets: environment variables or AWS Systems Manager Parameter Store / Secrets Manager
 
 ## AWS Well-Architected Alignment
