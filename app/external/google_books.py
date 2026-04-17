@@ -1,10 +1,9 @@
 import requests
-
+import os
 # Base endpoint used to query the external Google Books API.
 GOOGLE_ENDPOINT = "https://www.googleapis.com/books/v1/volumes"
-
 # API key used for requests against Google Books.
-KEY = "AIzaSyAytMhb-j0abdcirWgsHR54JcJipnqTghY"
+KEY = os.getenv("GOOGLE_KEY")
 
 
 def search_google_books(query: str):
