@@ -1,19 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import "../styles/PreviewCard.css";
 
+// External script exposed by Google to render the embedded book preview.
 const GOOGLE_PREVIEW_SRC = "https://books.google.com/books/previewlib.js";
 
 function BookPreview({ volumeId }) {
+  // Component responsible for rendering the embedded Google Books preview.
+  // Receives: volumeId of the selected book.
+  // Sends: no data to parent components.
+  // Purpose: manage script loading, viewer rendering, loading state, and fallback UI.
   const containerRef = useRef(null);
   const [previewError, setPreviewError] = useState(false);
   const [loadingPreview, setLoadingPreview] = useState(true);
 
   useEffect(() => {
+    // Trigger: runs whenever volumeId changes.
+    // Purpose: rebuild the embedded preview for the newly selected book.
     if (!volumeId || !containerRef.current) return;
 
     let cancelled = false;
 
     const renderViewer = () => {
+      // Inserts the embedded viewer into the current container.
       if (cancelled || !containerRef.current) return;
 
       if (typeof window.GBS_insertEmbeddedViewer !== "function") {
@@ -27,6 +35,8 @@ function BookPreview({ volumeId }) {
       setLoadingPreview(true);
       containerRef.current.innerHTML = "";
 
+      // Google Books internally uses document.write, so this temporarily redirects
+      // that output into our preview container.
       const previousWrite = document.write;
       document.write = (html) => {
         if (containerRef.current && !cancelled) {
@@ -37,6 +47,7 @@ function BookPreview({ volumeId }) {
       try {
         window.GBS_insertEmbeddedViewer(volumeId, 800, 600);
 
+        // Short delay used to verify that the viewer actually injected visible content.
         setTimeout(() => {
           if (cancelled || !containerRef.current) return;
 
@@ -61,12 +72,14 @@ function BookPreview({ volumeId }) {
     );
 
     if (existingScript) {
+      // If the script already exists, render immediately or wait until it finishes loading.
       if (typeof window.GBS_insertEmbeddedViewer === "function") {
         renderViewer();
       } else {
         existingScript.addEventListener("load", renderViewer, { once: true });
       }
     } else {
+      // If the script does not exist yet, inject it into the document once.
       const script = document.createElement("script");
       script.src = GOOGLE_PREVIEW_SRC;
       script.async = true;
@@ -80,6 +93,7 @@ function BookPreview({ volumeId }) {
     }
 
     return () => {
+      // Prevent state updates if the component unmounts while the preview is still loading.
       cancelled = true;
     };
   }, [volumeId]);
@@ -88,7 +102,8 @@ function BookPreview({ volumeId }) {
     <div className="embedded-preview-wrapper">
       {loadingPreview && (
         <div className="embedded-preview-loading">
-          Loading preview...
+          <div className="preview-spinner"></div>
+          <span>Loading preview...</span>
         </div>
       )}
 
@@ -99,9 +114,18 @@ function BookPreview({ volumeId }) {
         }`}
       />
 
-      {previewError && (
+      {previewError && !loadingPreview && (
         <div className="embedded-preview-error">
-          Preview is not available for this book.
+          <div className="error-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+              <path d="m9.5 9.5 5 5"/>
+              <path d="m14.5 9.5-5 5"/>
+            </svg>
+          </div>
+          <p className="error-message">
+            Preview is not available for this book
+          </p>
         </div>
       )}
     </div>

@@ -1,6 +1,18 @@
 from app.db import get_connection
 
+
 def save_book(book):
+    """Insert a saved book into the database.
+
+    Receives:
+    - book: schema-like object containing the book fields to persist.
+
+    Returns:
+    - tuple: the row returned by PostgreSQL with the new id.
+
+    Purpose:
+    - Performs the actual INSERT into the saved_books table.
+    """
     query = """
     INSERT INTO saved_books (
         user_id,
@@ -23,26 +35,42 @@ def save_book(book):
 
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute(query, (
-                book.user_id,
-                book.google_volume_id,
-                book.title,
-                book.authors,
-                book.description,
-                book.thumbnail,
-                book.preview_link,
-                book.publisher,
-                book.published_date,
-                book.page_count,
-                book.status,
-                book.rating,
-                book.notes
-            ))
+            cur.execute(
+                query,
+                (
+                    book.user_id,
+                    book.google_volume_id,
+                    book.title,
+                    book.authors,
+                    book.description,
+                    book.thumbnail,
+                    book.preview_link,
+                    book.publisher,
+                    book.published_date,
+                    book.page_count,
+                    book.status,
+                    book.rating,
+                    book.notes,
+                ),
+            )
             row = cur.fetchone()
             conn.commit()
             return row
 
+
+
 def get_books_by_user(user_id):
+    """Fetch every saved book that belongs to one user.
+
+    Receives:
+    - user_id (int): id of the user who owns the library.
+
+    Returns:
+    - list[tuple]: raw database rows ordered by creation date.
+
+    Purpose:
+    - Supplies the data shown in the frontend My Library page.
+    """
     query = """
     SELECT *
     FROM saved_books
@@ -55,7 +83,22 @@ def get_books_by_user(user_id):
             cur.execute(query, (user_id,))
             return cur.fetchall()
 
+
+
 def get_book_by_id_and_user(book_id, user_id):
+    """Fetch one saved book and confirm ownership.
+
+    Receives:
+    - book_id (int): internal id of the saved book.
+    - user_id (int): current user id.
+
+    Returns:
+    - tuple | None: the row if found, otherwise None.
+
+    Purpose:
+    - Protects update and delete flows from touching books that do not exist or
+      do not belong to the current user.
+    """
     query = """
     SELECT *
     FROM saved_books
@@ -67,8 +110,21 @@ def get_book_by_id_and_user(book_id, user_id):
             cur.execute(query, (book_id, user_id))
             return cur.fetchone()
 
-def get_book_by_user_and_volume_id(user_id, google_volume_id):
 
+
+def get_book_by_user_and_volume_id(user_id, google_volume_id):
+    """Check whether a user already saved a Google Books volume.
+
+    Receives:
+    - user_id (int): current user id.
+    - google_volume_id (str): external Google Books volume id.
+
+    Returns:
+    - tuple | None: the matching row if it exists.
+
+    Purpose:
+    - Prevents duplicate saves of the same Google Books item for the same user.
+    """
     query = """
     SELECT *
     FROM saved_books
@@ -79,9 +135,22 @@ def get_book_by_user_and_volume_id(user_id, google_volume_id):
         with conn.cursor() as cur:
             cur.execute(query, (user_id, google_volume_id))
             return cur.fetchone()
-        
+
+
 
 def delete_book(book_id, user_id):
+    """Delete one saved book from the database.
+
+    Receives:
+    - book_id (int): internal book id.
+    - user_id (int): id of the user who owns that book.
+
+    Returns:
+    - tuple | None: the deleted id returned by SQL, or None if no row matched.
+
+    Purpose:
+    - Executes the real DELETE statement against the saved_books table.
+    """
     print(book_id, user_id)
     query = """
     DELETE FROM saved_books
@@ -95,8 +164,23 @@ def delete_book(book_id, user_id):
             row = cur.fetchone()
             conn.commit()
             return row
-        
+
+
+
 def update_book_status(book_id, user_id, status):
+    """Update the reading status of one saved book.
+
+    Receives:
+    - book_id (int): internal book id.
+    - user_id (int): current user id.
+    - status (str): new reading status.
+
+    Returns:
+    - tuple | None: the updated row returned by PostgreSQL.
+
+    Purpose:
+    - Persists transitions such as want_to_read -> reading -> finished.
+    """
     query = """
     UPDATE saved_books
     SET status = %s
